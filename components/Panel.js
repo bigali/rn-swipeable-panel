@@ -8,6 +8,7 @@ import {
   Animated,
   Dimensions,
   PanResponder,
+  StatusBar,
 } from "react-native";
 
 import { Bar } from "./Bar";
@@ -17,7 +18,32 @@ import PropTypes from "prop-types";
 
 let FULL_HEIGHT = Dimensions.get("window").height;
 let FULL_WIDTH = Dimensions.get("window").width;
-let PANEL_HEIGHT = FULL_HEIGHT - 100;
+
+const [referenceWidth, referenceHeight] = [360, 640];
+
+const [minHorizontalFactor, minVerticalFactor] = [0.8, 0.8];
+
+const horizontalScaleFactor =
+  FULL_WIDTH / referenceWidth > minHorizontalFactor
+    ? FULL_WIDTH / referenceWidth
+    : minHorizontalFactor;
+
+const verticalScaleFactor =
+  FULL_HEIGHT / referenceHeight > minVerticalFactor
+    ? FULL_HEIGHT / referenceHeight
+    : minVerticalFactor;
+
+// scale horizontally
+export const sw = (value: number) => value * horizontalScaleFactor;
+
+// scale vertically
+export const sh = (value: number) => value * verticalScaleFactor;
+
+const statusbarHeight = typeof StatusBar.currentHeight !== 'undefined'
+      ? StatusBar.currentHeight
+      : 20;
+
+let PANEL_HEIGHT = FULL_HEIGHT - sh(56);
 
 const STATUS = {
   CLOSED: 0,
@@ -157,7 +183,7 @@ class SwipeablePanel extends Component {
     else if (newStatus == STATUS.SMALL)
       newY =
         this.state.orientation === "portrait"
-          ? FULL_HEIGHT - 400
+          ? FULL_HEIGHT - sh(220)
           : FULL_HEIGHT / 3;
     else if (newStatus == STATUS.LARGE) newY = 0;
 
@@ -329,7 +355,7 @@ const SwipeablePanelStyles = StyleSheet.create({
     flexDirection: "column",
     backgroundColor: "white",
     bottom: 0,
-    borderRadius: 20,
+    borderRadius: 0,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
     shadowColor: "#000",
